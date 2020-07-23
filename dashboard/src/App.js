@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useRef,useEffect} from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -16,8 +16,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DashBoard from '@material-ui/icons/Dashboard';
+import Grid from '@material-ui/core/Grid';
 
 import {Line} from "react-chartjs-2";
+import { Switch,Route, BrowserRouter, Redirect} from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -86,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 0,
   },
   temperature:{
-    width:"30%"
+    //width:"30%"
   }
 }));
 
@@ -97,6 +99,18 @@ export default function App() {
   const theme = useTheme();
 
   const [open, setOpen] = React.useState(false);
+  
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if(open===true)
+    {
+      console.log(ref.current.chartInstance.chart.height);
+      console.log(ref.current.chartInstance.chart.width); 
+    }
+    return () => {
+    }
+  }, [open]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -104,6 +118,12 @@ export default function App() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+    // For now it will reload the page not very efficent
+    // Solution:
+    // -Save prev state and restore it
+    // -Remove persistent dashboard
+    
+    window.location.reload(false);
   };
 
   return (
@@ -168,12 +188,62 @@ export default function App() {
           [classes.contentShift]: open,
         })}
       >
-        <div className={classes.drawerHeader} />
-        <div className={classes.temperature}>
-          <Line
-            data={temperature}
-          />
-        </div>
+      <BrowserRouter> 
+        <Switch>
+          <Redirect exact from="/" to="/dashboard" />
+          <Route exact path="/dashboard">
+            <div className={classes.drawerHeader} />
+            <div className={classes.temperature}>
+              <Grid container direction="row" justify= "center" alignItems="center">
+                <Grid item xs={6}>
+                  <Line
+                    data={temperature}
+                    options={
+                      {
+                        responsive:true,
+                        maintainAspectRatio:true
+                      }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Line ref={ref}
+                    data={temperature}
+                    options={
+                      {
+                        responsive:true,
+                        maintainAspectRatio:true
+                      }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Line ref={ref}
+                    data={temperature}
+                    options={
+                      {
+                        responsive:true,
+                        maintainAspectRatio:true
+                      }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Line ref={ref}
+                    data={temperature}
+                    options={
+                      {
+                        responsive:true,
+                        maintainAspectRatio:true
+                      }
+                    }
+                  />
+                </Grid>
+              </Grid>
+            </div>
+          </Route>
+        </Switch>
+      </BrowserRouter>  
       </main>
     </div>
   );
